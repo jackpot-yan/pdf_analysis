@@ -23,4 +23,4 @@ def demo(file_path):
         pprint.pprint(str(f.read()))
 
 
-demo('../002-英译中PDF+.pdf')
+demo('../testers/test_files/002-英译中PDF+.pdf')
