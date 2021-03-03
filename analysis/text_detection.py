@@ -66,7 +66,7 @@ class TextReader:
         return self.device.get_result()
 
     def get_all_text_box(self):
-        return list(filter(lambda x: isinstance(x, LTTextBox) or isinstance(x, LTFigure), self.get_layout()))
+        return filter(lambda x: isinstance(x, LTTextBox) or isinstance(x, LTFigure), self.get_layout())
 
     def get_all_text_line(self):
         pass
