@@ -2,25 +2,22 @@ import fitz
 import pprint
 
 
-def pdfimg(file_path):
-    """
-    # 实验文件
-    :param file_path: 示例文件
-    :return: None
-    """
-    doc = fitz.open(file_path)
-    for i in range(537):
-        print(doc.extract_image(i))
-    for page in range(doc.pageCount):
-        page = doc[page]
-        pm = page.getPixmap()
-        page_data = pm.getImageData()
-        # print(page_data)
+class Demo:
+    def __init__(self, x):
+        self.x = x
+
+    def add(self):
+        return self.x + 1
 
 
-def demo(file_path):
-    with open(file_path, 'rb') as f:
-        pprint.pprint(str(f.read()))
+class Demo2(Demo):
+
+    def add2(self):
+        return self.x + 5
 
 
-demo('../testers/test_files/002-英译中PDF+.pdf')
+# func1 = Demo(1)
+func2 = Demo2(1)
+
+# print(func1.add())
+print(func2.add2())

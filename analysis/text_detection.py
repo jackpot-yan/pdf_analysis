@@ -1,8 +1,10 @@
+from abc import ABC
+
 from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.layout import LTTextBox, LTTextLine, LTChar, LTFigure
+from pdfminer.layout import LTTextBox, LTTextLine, LTChar, LTFigure, LTTextBoxHorizontal, LTPage
 from pdfminer.converter import PDFPageAggregator, TextConverter
 from pdfminer.pdfinterp import PDFTextExtractionNotAllowed
-from pdfminer.pdfparser import PDFParser, PDFDocument
+from pdfminer.pdfparser import PDFParser, PDFDocument, PDFPage
 from urllib.request import urlopen
 from pdfminer.pdfinterp import PDFResourceManager, process_pdf
 from pdfminer.layout import LAParams
@@ -11,24 +13,6 @@ from io import open
 import os
 
 path = '/testers/test_files/test.pdf'
-
-
-class File:
-    def __init__(self, input_file, output_file):
-        self.input_file = input_file
-        self.output_file = output_file
-
-    def get_file_data(self):
-        file_data = open(self.input_file, 'rb')
-        return file_data
-
-    def close_file(self):
-        self.get_file_data().close()
-        return True
-
-    def write_to_file(self, content):
-        with open(self.output_file, 'w+') as file:
-            file.write(content)
 
 
 class PDFReader:
@@ -53,6 +37,44 @@ class PDFReader:
         return length
 
 
+class EsonPDFChar(LTChar):
+
+    def set_coordination_in_page(self, coordination):
+        pass
+
+    def set_eson_box(self, box):
+        self.text_box = box
+
+    # def get_box(self):
+    #     box = self.mediabox
+    #     return box
+
+    @property
+    def left_up(self):
+        return True
+
+    @property
+    def right_up(self):
+        return None
+
+    @property
+    def left_down(self):
+        return None
+
+    @property
+    def right_down(self):
+        return None
+
+
+class EsonPDFTextLine(LTTextLine):
+
+    def __init__(self):
+        super(EsonPDFTextLine, self).__init__()
+
+    def set_eson_box(self, box):
+        self.text_box = box
+
+
 class TextReader:
     def __init__(self, page):
         rsrcmgr = PDFResourceManager()
@@ -61,12 +83,89 @@ class TextReader:
         self.interpreter = PDFPageInterpreter(rsrcmgr, self.device)
         self.page = page
 
+    @staticmethod
+    def get_text_line_from_text_box(text_box):
+        return list(filter(lambda x: isinstance(x, LTTextLine), text_box))
+
+    @staticmethod
+    def get_text_char_from_text_line(text_line):
+        return list(filter(lambda x: isinstance(x, LTChar), text_line))
+        # temp = list(filter(lambda x: isinstance(x, LTChar), text_line))
+        # temp2 = [EsonPDFChar(x) for x in temp]
+        # temp3 = [x.set_coordination_in_page(_x, _y) for x in temp2]
+        # return temp3
+
+    @staticmethod
+    def convert_LTChar2EsonChar(lt_char, lt_box):
+        lt_char.__class__ = EsonPDFChar
+        lt_char.set_eson_box(lt_box)
+
+    @staticmethod
+    def convert_LTTextLine2EsonTextLine(lt_line, lt_box):
+        lt_line.__class__ = EsonPDFTextLine
+        lt_line.set_eson_box(lt_box)
+
     def get_layout(self):
         self.interpreter.process_page(self.page)
         return self.device.get_result()
 
     def get_all_text_box(self):
-        return filter(lambda x: isinstance(x, LTTextBox) or isinstance(x, LTFigure), self.get_layout())
+        return list(filter(lambda x: isinstance(x, LTTextBox), self.get_layout()))
 
     def get_all_text_line(self):
-        pass
+        rtn = []
+        for box in self.get_all_text_box():
+            rtn.extend(self.get_text_line_from_text_box(box))
+        return rtn
+
+    def get_all_text_char(self):
+        rtn = []
+        for line in self.get_all_text_line():
+            rtn.extend(self.get_text_char_from_text_line(line))
+        return rtn
+
+    def get_page_size(self):
+        config = {'width': self.page.mediabox[2], 'height': self.page.mediabox[3]}
+        return config
+
+
+class EsonPDFPage:
+    def __init__(self, page):
+        self.page = page
+        self.text_reader = TextReader(page)
+
+    @property
+    def page_size(self):
+        return {'width': self.page.mediabox[2], 'height': self.page.mediabox[3]}
+
+    @property
+    def all_text_box(self):
+        return self.text_reader.get_all_text_box()
+
+    @property
+    def all_text_line(self):
+        return self.text_reader.get_all_text_line()
+
+    @property
+    def all_text_char(self):
+        return self.text_reader.get_all_text_char()
+
+
+class PDFObjectInfo:
+    def __init__(self, page):
+        self.page = EsonPDFPage(page)
+        self.page_size = self.page.page_size
+
+    def get_text_box_info(self, text_box):
+        paragraph = {}
+        x, y, content = text_box.bbox[0], self.page_size['height'] - text_box.bbox[3], text_box.get_text()
+        paragraph[content] = [x, y]
+        return paragraph
+
+    def get_char_info(self, chars):
+        font_style = []
+        text, text_size, font_name = chars.get_text(), chars.size, chars.fontname
+        text_x, text_y = chars.bbox[0], self.page_size['height'] - chars.bbox[3]
+        font_list = [text, text_size, font_name, text_x, text_y]
+        font_style.append(font_list)
+        return font_style
