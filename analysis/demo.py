@@ -1,23 +1,19 @@
 import fitz
-import pprint
+
+#  官方文档地址: https://pymupdf.readthedocs.io/
 
 
-class Demo:
-    def __init__(self, x):
-        self.x = x
+def demo(file_path):
+    """
+    # ...
+    :param file_path: 待解析的文件路径
+    :return: None
+    """
+    doc = fitz.open(file_path)
+    for page in doc:
+        text = page.get_text('html').encode('utf8')
+        with open('text.html', 'wb') as file:
+            file.write(text)
 
-    def add(self):
-        return self.x + 1
 
-
-class Demo2(Demo):
-
-    def add2(self):
-        return self.x + 5
-
-
-# func1 = Demo(1)
-func2 = Demo2(1)
-
-# print(func1.add())
-print(func2.add2())
+demo('../testers/test_files/pages.pdf')

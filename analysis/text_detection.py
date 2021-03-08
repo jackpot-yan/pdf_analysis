@@ -1,5 +1,3 @@
-from abc import ABC
-
 from pdfminer.pdfinterp import PDFPageInterpreter
 from pdfminer.layout import LTTextBox, LTTextLine, LTChar, LTFigure, LTTextBoxHorizontal, LTPage
 from pdfminer.converter import PDFPageAggregator, TextConverter
@@ -11,6 +9,8 @@ from pdfminer.layout import LAParams
 from io import StringIO
 from io import open
 import os
+
+#  pdfminer官方文档 https://pdfminersix.readthedocs.io/
 
 path = '/testers/test_files/test.pdf'
 
@@ -40,30 +40,32 @@ class PDFReader:
 class EsonPDFChar(LTChar):
 
     def set_coordination_in_page(self, coordination):
-        pass
+        self.size = coordination
+        return self.size
 
-    def set_eson_box(self, box):
-        self.text_box = box
+    # def set_eson_box(self, box):
+    #     box = self.bbox
+    #     return box
 
     # def get_box(self):
     #     box = self.mediabox
     #     return box
 
-    @property
-    def left_up(self):
-        return True
-
-    @property
-    def right_up(self):
-        return None
-
-    @property
-    def left_down(self):
-        return None
-
-    @property
-    def right_down(self):
-        return None
+    # @property
+    # def left_up(self):
+    #     return True
+    #
+    # @property
+    # def right_up(self):
+    #     return None
+    #
+    # @property
+    # def left_down(self):
+    #     return None
+    #
+    # @property
+    # def right_down(self):
+    #     return None
 
 
 class EsonPDFTextLine(LTTextLine):
@@ -96,9 +98,10 @@ class TextReader:
         # return temp3
 
     @staticmethod
-    def convert_LTChar2EsonChar(lt_char, lt_box):
+    def convert_LTChar2EsonChar(lt_char):
         lt_char.__class__ = EsonPDFChar
-        lt_char.set_eson_box(lt_box)
+        # lt_char.set_eson_box(lt_box)
+        return lt_char
 
     @staticmethod
     def convert_LTTextLine2EsonTextLine(lt_line, lt_box):
