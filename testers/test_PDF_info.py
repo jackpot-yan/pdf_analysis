@@ -24,10 +24,5 @@ class Tester(TestCase):
         result = self.info.get_char_info(char)
         self.assertEqual(text, result)
 
-    def test_convert_LTChar2EsonChar(self):
-        char = self.text_reader.get_all_text_char()[0]
-        result = self.text_reader.convert_LTChar2EsonChar(char)
-        self.assertEqual(result.set_coordination_in_page(1), 1)
-
     def tearDown(self) -> None:
         self.data.close()

@@ -16,4 +16,4 @@ def demo(file_path):
             file.write(text)
 
 
-demo('../testers/test_files/pages.pdf')
+demo('../testers/test_files/test.pdf')

@@ -38,43 +38,20 @@ class PDFReader:
 
 
 class EsonPDFChar(LTChar):
-
-    def set_coordination_in_page(self, coordination):
-        self.size = coordination
-        return self.size
-
-    # def set_eson_box(self, box):
-    #     box = self.bbox
-    #     return box
-
-    # def get_box(self):
-    #     box = self.mediabox
-    #     return box
-
-    # @property
-    # def left_up(self):
-    #     return True
-    #
-    # @property
-    # def right_up(self):
-    #     return None
-    #
-    # @property
-    # def left_down(self):
-    #     return None
-    #
-    # @property
-    # def right_down(self):
-    #     return None
+    def set_coordination_in_page(self, page_config):
+        Eson_coordination = page_config['height'] - self.bbox[3]
+        return Eson_coordination
 
 
-class EsonPDFTextLine(LTTextLine):
+class EsonPDFTextBox(LTTextBox):
+    def set_coordination_in_page(self, page_config):
+        y2 = page_config['height'] - self.bbox[3]
+        return y2
 
-    def __init__(self):
-        super(EsonPDFTextLine, self).__init__()
-
-    def set_eson_box(self, box):
-        self.text_box = box
+    @property
+    def get_len_text_box(self):
+        len_box = len(self.get_text())
+        return len_box
 
 
 class TextReader:
@@ -92,21 +69,16 @@ class TextReader:
     @staticmethod
     def get_text_char_from_text_line(text_line):
         return list(filter(lambda x: isinstance(x, LTChar), text_line))
-        # temp = list(filter(lambda x: isinstance(x, LTChar), text_line))
-        # temp2 = [EsonPDFChar(x) for x in temp]
-        # temp3 = [x.set_coordination_in_page(_x, _y) for x in temp2]
-        # return temp3
+
+    @staticmethod
+    def convert_LTTextBox2EsonBox(lt_box):
+        lt_box.__class__ = EsonPDFTextBox
+        return lt_box
 
     @staticmethod
     def convert_LTChar2EsonChar(lt_char):
         lt_char.__class__ = EsonPDFChar
-        # lt_char.set_eson_box(lt_box)
         return lt_char
-
-    @staticmethod
-    def convert_LTTextLine2EsonTextLine(lt_line, lt_box):
-        lt_line.__class__ = EsonPDFTextLine
-        lt_line.set_eson_box(lt_box)
 
     def get_layout(self):
         self.interpreter.process_page(self.page)
@@ -159,16 +131,18 @@ class PDFObjectInfo:
         self.page = EsonPDFPage(page)
         self.page_size = self.page.page_size
 
-    def get_text_box_info(self, text_box):
+    def get_text_box_info(self, lt_box):
         paragraph = {}
-        x, y, content = text_box.bbox[0], self.page_size['height'] - text_box.bbox[3], text_box.get_text()
+        lt_box.__class__ = EsonPDFTextBox
+        x, y, content = lt_box.bbox[0], lt_box.set_coordination_in_page(self.page_size), lt_box.get_text()
         paragraph[content] = [x, y]
         return paragraph
 
-    def get_char_info(self, chars):
+    def get_char_info(self, char):
         font_style = []
-        text, text_size, font_name = chars.get_text(), chars.size, chars.fontname
-        text_x, text_y = chars.bbox[0], self.page_size['height'] - chars.bbox[3]
+        char.__class__ = EsonPDFChar
+        text, text_size, font_name = char.get_text(), char.size, char.fontname
+        text_x, text_y = char.bbox[0], char.set_coordination_in_page(self.page_size)
         font_list = [text, text_size, font_name, text_x, text_y]
         font_style.append(font_list)
         return font_style

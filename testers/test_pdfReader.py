@@ -12,7 +12,7 @@ class Tester(TestCase):
     def test_read_page_count(self):
         pdf_reader = PDFReader(self.data)
         page_count = pdf_reader.get_page_count()
-        self.assertEqual(2, page_count)
+        self.assertEqual(1, page_count)
 
     def tearDown(self) -> None:
         self.data.close()
