@@ -13,7 +13,7 @@ class Tester(TestCase):
         self.info = PDFObjectInfo(self.page_1)
 
     def test_info(self):
-        text = {'译讯科技\n': [90.0, 78.25400000000002]}
+        text = {'译讯科技\n': [90.0, 78.25400000000002, 5]}
         box = self.text_reader.get_all_text_box()[0]
         result = self.info.get_text_box_info(box)
         self.assertEqual(text, result)

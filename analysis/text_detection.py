@@ -128,14 +128,15 @@ class EsonPDFPage:
 
 class PDFObjectInfo:
     def __init__(self, page):
-        self.page = EsonPDFPage(page)
-        self.page_size = self.page.page_size
+        self.page = TextReader(page)
+        self.page_size = self.page.get_page_size()
 
-    def get_text_box_info(self, lt_box):
+    def get_text_box_info(self):
         paragraph = {}
+        lt_box = self.page.get_all_text_box()
         lt_box.__class__ = EsonPDFTextBox
-        x, y, content = lt_box.bbox[0], lt_box.set_coordination_in_page(self.page_size), lt_box.get_text()
-        paragraph[content] = [x, y]
+        x, y, content, length = lt_box.bbox[0], lt_box.set_coordination_in_page(self.page_size), lt_box.get_text(), lt_box.get_len_text_box
+        paragraph[content] = [x, y, length]
         return paragraph
 
     def get_char_info(self, char):
