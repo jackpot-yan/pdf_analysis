@@ -3,17 +3,22 @@ import fitz
 #  官方文档地址: https://pymupdf.readthedocs.io/
 
 
-def demo(file_path):
-    """
-    # ...
-    :param file_path: 待解析的文件路径
-    :return: None
-    """
-    doc = fitz.open(file_path)
-    for page in doc:
-        text = page.get_text('html').encode('utf8')
-        with open('text.html', 'wb') as file:
-            file.write(text)
+class GeneratorImg:
+    def __init__(self, img_data):
+        self.img_data = img_data
 
+    def read_file(self):
+        doc = fitz.open(self.img_data)
+        return doc
 
-demo('../testers/test_files/test.pdf')
+    def get_file_page(self):
+        for page in self.read_file():
+            text = page.get_text('dict')
+            img_info = text['blocks']
+            return img_info
+
+    def get_img_info(self):
+        for img_info in self.get_file_page():
+            if 'ext' in img_info.keys():
+                return img_info
+

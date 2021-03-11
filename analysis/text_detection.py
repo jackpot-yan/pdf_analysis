@@ -50,7 +50,7 @@ class EsonPDFTextBox(LTTextBox):
 
     @property
     def get_len_text_box(self):
-        len_box = len(self.get_text())
+        len_box = len(self.get_text().replace('\n', '').replace(' ', ''))
         return len_box
 
 
@@ -131,19 +131,22 @@ class PDFObjectInfo:
         self.page = TextReader(page)
         self.page_size = self.page.get_page_size()
 
-    def get_text_box_info(self):
+    def get_all_text_box_info(self):
         paragraph = {}
-        lt_box = self.page.get_all_text_box()
-        lt_box.__class__ = EsonPDFTextBox
-        x, y, content, length = lt_box.bbox[0], lt_box.set_coordination_in_page(self.page_size), lt_box.get_text(), lt_box.get_len_text_box
-        paragraph[content] = [x, y, length]
+        lt_boxes = self.page.get_all_text_box()
+        for lt_box in lt_boxes:
+            lt_box.__class__ = EsonPDFTextBox
+            x, y, content, length = lt_box.bbox[0], lt_box.set_coordination_in_page(self.page_size), lt_box.get_text(), lt_box.get_len_text_box
+            paragraph[content] = [x, y, length]
         return paragraph
 
-    def get_char_info(self, char):
+    def get_all_char_info(self):
         font_style = []
-        char.__class__ = EsonPDFChar
-        text, text_size, font_name = char.get_text(), char.size, char.fontname
-        text_x, text_y = char.bbox[0], char.set_coordination_in_page(self.page_size)
-        font_list = [text, text_size, font_name, text_x, text_y]
-        font_style.append(font_list)
+        lt_chars = self.page.get_all_text_char()
+        for char in lt_chars:
+            char.__class__ = EsonPDFChar
+            text, text_size, font_name = char.get_text(), char.size, char.fontname
+            text_x, text_y = char.bbox[0], char.set_coordination_in_page(self.page_size)
+            font_list = [text, text_size, font_name, text_x, text_y]
+            font_style.append(font_list)
         return font_style

@@ -13,15 +13,13 @@ class Tester(TestCase):
         self.info = PDFObjectInfo(self.page_1)
 
     def test_info(self):
-        text = {'译讯科技\n': [90.0, 78.25400000000002, 5]}
-        box = self.text_reader.get_all_text_box()[0]
-        result = self.info.get_text_box_info(box)
+        text = ('译讯科技\n', [90.0, 78.25400000000002, 5])
+        result = list(self.info.get_all_text_box_info().items())[0]
         self.assertEqual(text, result)
 
     def test_chars_info(self):
-        text = [['译', 20.519999999999982, 'HYUHQC+DroidSansFallback', 90.0, 78.25400000000002]]
-        char = self.text_reader.get_all_text_char()[0]
-        result = self.info.get_char_info(char)
+        text = ['译', 20.519999999999982, 'HYUHQC+DroidSansFallback', 90.0, 78.25400000000002]
+        result = self.info.get_all_char_info()[0]
         self.assertEqual(text, result)
 
     def tearDown(self) -> None:
