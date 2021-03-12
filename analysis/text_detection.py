@@ -146,6 +146,8 @@ class PDFObjectInfo:
         for char in lt_chars:
             char.__class__ = EsonPDFChar
             text, text_size, font_name = char.get_text(), char.size, char.fontname
+            if ' ' in text or '\n' in text:
+                continue
             text_x, text_y = char.bbox[0], char.set_coordination_in_page(self.page_size)
             font_list = [text, text_size, font_name, text_x, text_y]
             font_style.append(font_list)

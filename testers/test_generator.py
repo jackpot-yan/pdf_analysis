@@ -13,18 +13,13 @@ class Tester(TestCase):
         self.info = Generator(self.page)
 
     def test_div_label(self):
-        text = """<div id="page0" style="position:relative;width:595.3pt;height:841.9pt;background-color:white">"""
+        text = """<div style="position:relative;width:595.3pt;height:841.9pt;">"""
         result = self.info.generator_div_label()
         self.assertEqual(text, result)
 
-    def test_p_div_label(self):
-        text = """<div id="page0" style="position:relative;width:595.3pt;height:841.9pt;background-color:white">""" + '\n\t' + """<p style="position:absolute;white-space:pre;margin:0;padding:0;top:78.25400000000002pt;left:90.0pt">"""
-        result = self.info.generator_div_and_p_label()
-        self.assertEqual(text, result)
-
     def test_span_label(self):
-        text = """<div id="page0" style="position:relative;width:595.3pt;height:841.9pt;background-color:white">""" + '\n\t' + """<p style="position:absolute;white-space:pre;margin:0;padding:0;top:78.25400000000002pt;left:90.0pt"><span style="font-family:DroidSansFallback,serif;font-size:20.519999999999982pt">译</span></p>"""
-        result = self.info.generator_text_html()
+        text = ('<p style="position:absolute; padding:78.25400000000002pt 90.0pt">', 4)
+        result = next(self.info.generator_p_label())
         self.assertEqual(text, result)
 
     def test_get_paragraph_length(self):
@@ -33,12 +28,8 @@ class Tester(TestCase):
         self.assertEqual(text, result)
 
     def test_generator_html(self):
-        text = """<div id="page0" style="position:relative;width:595pt;height:841pt;background-color:white">
-    <p style="position:absolute;white-space:pre;margin:0;padding:0;top:75pt;left:90pt"><span style="font-family:DroidSansFallback,serif;font-size:18pt">&#x8bd1;&#x8baf;&#x79d1;&#x6280;</span></p>
-    <p style="position:absolute;white-space:pre;margin:0;padding:0;top:126pt;left:216pt"><span style="font-family:DroidSansFallback,serif;font-size:12pt">&#x7814;&#x53d1;&#x90e8;</span></p>
-    <p style="position:absolute;white-space:pre;margin:0;padding:0;top:345pt;left:142pt"><span style="font-family:DroidSansFallback,serif;font-size:10.45pt">&#x8881;&#x6653;&#x5f64;</span></p>
-</div>"""
-        result = self.info.generator_text_html()
+        text = 25444
+        result = self.info.generator_html_file()
         self.assertEqual(text, result)
 
     def tearDown(self) -> None:

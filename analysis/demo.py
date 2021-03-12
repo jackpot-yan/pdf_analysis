@@ -1,24 +1,35 @@
 import fitz
 
+
 #  官方文档地址: https://pymupdf.readthedocs.io/
 
 
 class GeneratorImg:
-    def __init__(self, img_data):
-        self.img_data = img_data
+    def __init__(self, file_path):
+        self.file_path = file_path
 
     def read_file(self):
-        doc = fitz.open(self.img_data)
+        doc = fitz.open(self.file_path)
         return doc
 
-    def get_file_page(self):
+    def get_pages_info(self):
+        page_info = []
         for page in self.read_file():
             text = page.get_text('dict')
-            img_info = text['blocks']
-            return img_info
+            if text['blocks']:
+                page_info.append(text['blocks'])
+        return page_info
 
-    def get_img_info(self):
-        for img_info in self.get_file_page():
-            if 'ext' in img_info.keys():
-                return img_info
+    def get_image_from_page(self):
+        image_info = []
+        for page in self.get_pages_info():
+            for i in page:
+                if 'ext' in i.keys():
+                    image_info.append(i)
+        return image_info
 
+
+class EsonImgInfo(GeneratorImg):
+    def Eson_image_width(self):
+        for i in self.get_image_from_page():
+            print(i)
